@@ -1,9 +1,8 @@
 import { List } from "antd";
 import Filter from "./components/Filter";
-import Loading from "./components/Loading";
-import useFetch from "./hooks/useFetch";
 import { useEffect, useState } from "react";
 import BikeCard from "./components/BikeCard";
+import Error from "./components/Error";
 
 function App() {
   const [pageNum, setPageNum] = useState(1);
@@ -17,7 +16,7 @@ function App() {
   const [endDate, setEndDate] = useState("");
   const [title, setTitle] = useState("");
 
-  const { data: count } = useFetch(`search/count?location=Munich`);
+  const [bikesTotal, setBikesTotal] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,19 +25,17 @@ function App() {
       try {
         const res = await fetch(
           `https://bikeindex.org:443/api/v3/search?page=${pageNum}&per_page=${pageSize}&location=Munich&stolenness=stolen&query=${title}`
-          // `https://bikeindex.org:443/api/v3/search?
-          //   page=${pageNum}&
-          //   per_page=${pageSize}&
-          //   query=2019&
-          //   location=Munich&
-          //   stolenness=stolen
-          // `
+        );
+        const resTotal = await fetch(
+          `https://bikeindex.org:443/api/v3/search/count?page=${pageNum}&per_page=${pageSize}&location=Munich&stolenness=stolen&query=${title}`
         );
 
         const data = await res.json();
+        const total = await resTotal.json();
 
         setData(data);
         setIsLoading(false);
+        setBikesTotal(total.stolen);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -48,15 +45,12 @@ function App() {
     fetchData();
   }, [pageNum, pageSize, startDate, endDate, title]);
 
-  if (error) throw error;
-
   return (
     <>
       <div className="container py-5">
-        {/* <Loading loading={isLoading} /> */}
-        <h2 className="text-2xl text-slate-700 font-bold">
+        <h2 className="text-2xl font-bold text-slate-700">
           <span>Stolen bikes</span>
-          <span> ({count?.stolen})</span>
+          <span> ({bikesTotal})</span>
         </h2>
 
         <div className="pt-10">
@@ -68,22 +62,27 @@ function App() {
             title={title}
             setTitle={setTitle}
           />
-          <List
-            itemLayout="vertical"
-            size="large"
-            loading={isLoading}
-            pagination={{
-              onChange: (page, size) => {
-                setPageNum(page);
-                setPageSize(size);
-              },
-              pageSize: pageSize,
+          {/* Error */}
+          {error ? (
+            <Error />
+          ) : (
+            <List
+              itemLayout="vertical"
+              size="large"
+              loading={isLoading}
+              pagination={{
+                onChange: (page, size) => {
+                  setPageNum(page);
+                  setPageSize(size);
+                },
+                pageSize: pageSize,
 
-              total: count?.stolen,
-            }}
-            dataSource={data.bikes}
-            renderItem={(item) => <BikeCard {...item} />}
-          />
+                total: bikesTotal,
+              }}
+              dataSource={data.bikes}
+              renderItem={(item) => <BikeCard {...item} />}
+            />
+          )}
         </div>
       </div>
     </>
