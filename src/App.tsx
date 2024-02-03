@@ -4,13 +4,26 @@ import { useEffect, useState } from "react";
 import BikeCard from "./components/BikeCard";
 import Error from "./components/Error";
 
+type dataTypes = {
+  bikes: {
+    thumb: string;
+    title: string;
+    description: string;
+    serial: string;
+    date_stolen: number;
+    stolen_location: string;
+    url: string;
+    year: number;
+  }[];
+};
+
 function App() {
   const [pageNum, setPageNum] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({ bikes: [] } as dataTypes);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -37,13 +50,14 @@ function App() {
         setIsLoading(false);
         setBikesTotal(total.stolen);
       } catch (err) {
-        setError(err.message);
+        setError(true);
       } finally {
         setIsLoading(false);
       }
     };
     fetchData();
   }, [pageNum, pageSize, startDate, endDate, title]);
+
 
   return (
     <>
@@ -55,11 +69,8 @@ function App() {
 
         <div className="pt-10">
           <Filter
-            startDate={startDate}
             setStartDate={setStartDate}
-            endDate={endDate}
             setEndDate={setEndDate}
-            title={title}
             setTitle={setTitle}
           />
           {/* Error */}

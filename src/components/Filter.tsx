@@ -1,28 +1,31 @@
 import { Input, DatePicker } from "antd";
-import dayjs from "dayjs";
+import { RangePickerProps } from "antd/es/date-picker";
+import { Dispatch, SetStateAction } from "react";
 
 const { RangePicker } = DatePicker;
 
-const Filter = ({
-  startDate,
-  endDate,
-  setStartDate,
-  setEndDate,
-  title,
-  setTitle,
-}) => {
+type filterProps = {
+  setStartDate: Dispatch<SetStateAction<string>>;
+  setEndDate: Dispatch<SetStateAction<string>>;
+  setTitle: Dispatch<SetStateAction<string>>;
+};
+
+const Filter = ({ setStartDate, setEndDate, setTitle }: filterProps) => {
   let timeout: number | undefined;
-  const handleChangeTitle = (e) => {
+  const handleChangeTitle = (e: {
+    target: { value: SetStateAction<string> };
+  }) => {
     timeout = setTimeout(() => {
       setTitle(e.target.value);
     }, 1000);
   };
 
   const handleDatePicker = (
-    dates: { $d: string | number | dayjs.Dayjs | Date | null | undefined }[]
+    _value: RangePickerProps["value"],
+    dateString: [string, string] | string
   ) => {
-    setStartDate(dayjs(dates[0].$d).format("YYYY-MM-DD"));
-    setEndDate(dayjs(dates[1].$d).format("YYYY-MM-DD"));
+    setStartDate(dateString[0]);
+    setEndDate(dateString[1]);
   };
 
   return (
