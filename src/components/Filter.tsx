@@ -28,8 +28,8 @@ const Filter = ({
   return (
     <div className="w-full p-3 mb-5 border border-green-100 rounded-md bg-slate-50">
       <h5 className="mb-3 text-xl font-semibold">Filter</h5>
-      <div className="flex gap-5">
-        <div className="w-3/5">
+      <div className="flex flex-col gap-5 md:flex-row">
+        <div className="w-full md:w-3/5">
           <Input
             placeholder="Enter the title here..."
             name="title"
@@ -38,7 +38,7 @@ const Filter = ({
             onKeyDown={() => clearTimeout(timeout)}
           />
         </div>
-        <div className="w-2/5">
+        <div className="w-full md:w-2/5">
           <RangePicker
             format="YYYY-MM-DD"
             size="large"
